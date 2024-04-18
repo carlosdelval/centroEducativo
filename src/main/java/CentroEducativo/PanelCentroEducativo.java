@@ -13,13 +13,13 @@ import CentroEducativo.controladores.ControladorValoracion;
 import CentroEducativo.entities.Estudiante;
 import CentroEducativo.entities.Materia;
 import CentroEducativo.entities.Profesor;
-import CentroEducativo.entities.SuperEntidad;
 import CentroEducativo.entities.ValoracionMateria;
 
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JLabel;
@@ -30,7 +30,10 @@ import javax.swing.JButton;
 import java.awt.Font;
 import javax.swing.ImageIcon;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
+import javax.swing.JFormattedTextField;
 
 public class PanelCentroEducativo extends JFrame {
 
@@ -38,6 +41,7 @@ public class PanelCentroEducativo extends JFrame {
 	private JPanel contentPane;
 	private JList listSelec;
 	private JList listNoSelec;
+	private JFormattedTextField formattedTextField;
 	private DefaultListModel<Estudiante> listModelNoSeleccionados = new DefaultListModel();
 	private DefaultListModel<Estudiante> listModelSeleccionados = new DefaultListModel();
 	JComboBox jcbMateria;
@@ -66,7 +70,7 @@ public class PanelCentroEducativo extends JFrame {
 	 */
 	public PanelCentroEducativo() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 500, 600);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -87,9 +91,9 @@ public class PanelCentroEducativo extends JFrame {
 		contentPane.add(panel, gbc_panel);
 		GridBagLayout gbl_panel = new GridBagLayout();
 		gbl_panel.columnWidths = new int[]{0, 0, 0};
-		gbl_panel.rowHeights = new int[]{0, 0, 0, 0, 0};
+		gbl_panel.rowHeights = new int[]{0, 0, 0, 0, 0, 0};
 		gbl_panel.columnWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
-		gbl_panel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_panel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panel.setLayout(gbl_panel);
 		
 		JLabel lblMateria = new JLabel("Materia:");
@@ -146,10 +150,26 @@ public class PanelCentroEducativo extends JFrame {
 				filtrarEstudiantes();
 			}
 		});
+		
+		JLabel lblFecha = new JLabel("Fecha:");
+		GridBagConstraints gbc_lblFecha = new GridBagConstraints();
+		gbc_lblFecha.anchor = GridBagConstraints.EAST;
+		gbc_lblFecha.insets = new Insets(0, 0, 5, 5);
+		gbc_lblFecha.gridx = 0;
+		gbc_lblFecha.gridy = 3;
+		panel.add(lblFecha, gbc_lblFecha);
+		
+		formattedTextField = getJFormattedTextFieldDatePersonalizado();
+		GridBagConstraints gbc_formattedTextField = new GridBagConstraints();
+		gbc_formattedTextField.insets = new Insets(0, 0, 5, 280);
+		gbc_formattedTextField.fill = GridBagConstraints.HORIZONTAL;
+		gbc_formattedTextField.gridx = 1;
+		gbc_formattedTextField.gridy = 3;
+		panel.add(formattedTextField, gbc_formattedTextField);
 		GridBagConstraints gbc_btnActualizar = new GridBagConstraints();
 		gbc_btnActualizar.anchor = GridBagConstraints.EAST;
 		gbc_btnActualizar.gridx = 1;
-		gbc_btnActualizar.gridy = 3;
+		gbc_btnActualizar.gridy = 4;
 		panel.add(btnActualizar, gbc_btnActualizar);
 		
 		JPanel panel_1 = new JPanel();
@@ -413,12 +433,44 @@ public class PanelCentroEducativo extends JFrame {
 		int notaActual = (int)jcbNota.getSelectedItem();
 		int idProfesor = ((Profesor)jcbProfesor.getSelectedItem()).getId();
 		int idMateria = ((Materia)jcbMateria.getSelectedItem()).getId();
+		Date fecha = (Date) formattedTextField.getValue();
 		
 		for (int i = 0; i < listModelSeleccionados.getSize(); i++) {
 			int idEstudiante = listModelSeleccionados.get(i).getId();
 			ValoracionMateria vm = cv.filtraValoracion(idEstudiante, idProfesor, idMateria);
-			if(vm != null) cv.update(vm,notaActual);
-			else cv.persist(notaActual,idEstudiante, idProfesor, idMateria);
+			if(vm != null) cv.update(vm,notaActual,fecha);
+			else cv.persist(notaActual,idEstudiante, idProfesor, idMateria,fecha);
 		}
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private JFormattedTextField getJFormattedTextFieldDatePersonalizado() {
+		JFormattedTextField jftf = new JFormattedTextField(new JFormattedTextField.AbstractFormatter() {
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+			@Override
+			public String valueToString(Object value) throws ParseException {
+				if (value != null && value instanceof Date) {
+					return sdf.format(((Date) value));
+				}
+				return "";
+			}
+
+			@Override
+			public Object stringToValue(String text) throws ParseException {
+				try {
+					return sdf.parse(text);
+				} catch (Exception e) {
+					System.out.println("La fecha debe tener el formato 'dd/MM/yyyy'");
+					return null;
+				}
+			}
+		});
+		jftf.setColumns(20);
+		jftf.setValue(new Date());
+		return jftf;
 	}
 }

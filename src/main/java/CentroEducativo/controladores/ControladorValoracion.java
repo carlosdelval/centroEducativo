@@ -1,5 +1,7 @@
 package CentroEducativo.controladores;
 
+import java.util.Date;
+
 import javax.persistence.EntityManager;
 import CentroEducativo.entities.ValoracionMateria;
 
@@ -34,11 +36,12 @@ public class ControladorValoracion extends SuperControlador {
 	 * @param m
 	 */
 	
-	public void update(ValoracionMateria e, int nota) {
+	public void update(ValoracionMateria e, int nota, Date fecha) {
 		EntityManager em = getEntityManager();
 		
 		em.getTransaction().begin();
 		e.setValoracion(nota);
+		e.setFecha(fecha);
 		em.merge(e);
 		em.getTransaction().commit();
 	}
@@ -48,7 +51,7 @@ public class ControladorValoracion extends SuperControlador {
 	 * @param e
 	 */
 	
-	public void persist(int nota, int idEstudiante, int idProfesor, int idMateria) {
+	public void persist(int nota, int idEstudiante, int idProfesor, int idMateria, Date fecha) {
 		ValoracionMateria vm = new ValoracionMateria();
 		EntityManager em = getEntityManager();
 		em.getTransaction().begin();
@@ -56,6 +59,7 @@ public class ControladorValoracion extends SuperControlador {
 		vm.setIdEstudiante(idEstudiante);
 		vm.setIdProfesor(idProfesor);
 		vm.setIdMateria(idMateria);
+		vm.setFecha(fecha);
 		em.persist(vm);
 		em.getTransaction().commit();
 	}

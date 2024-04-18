@@ -1,5 +1,7 @@
 package CentroEducativo.entities;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -24,6 +26,16 @@ public class ValoracionMateria extends SuperEntidad{
 	private int idMateria;
 	@Column(name="valoracion")
 	private int valoracion;
+	@Column(name="fecha")
+	private Date fecha;
+
+	public Date getFecha() {
+		return fecha;
+	}
+
+	public void setFecha(Date fecha) {
+		this.fecha = fecha;
+	}
 
 	public ValoracionMateria() {
 		super();
